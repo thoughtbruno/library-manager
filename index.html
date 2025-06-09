@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-edit {
+            background-color: #28a745;
+        }
+
+        .btn-edit:hover {
+            background-color: #218838;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+        }
+
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #555;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .actions {
+            white-space: nowrap;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Gerenciador de Biblioteca</h1>
+        
+        <!-- Estatísticas -->
+        <div class="stats">
+            <strong>Total de documentos: <span id="totalDocs">0</span></strong>
+        </div>
+
+        <!-- Formulário para adicionar/editar documento -->
+        <div class="form-section">
+            <h3 id="formTitle">Adicionar Novo Documento</h3>
+            <form id="documentForm">
+                <input type="hidden" id="editId" value="">
+                
+                <div class="form-group">
+                    <label for="title">Título:</label>
+                    <input type="text" id="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Tipo:</label>
+                    <select id="type" required>
+                        <option value="">Selecione um tipo</option>
+                        <option value="Livro">Livro</option>
+                        <option value="Revista">Revista</option>
+                        <option value="Manual">Manual</option>
+                        <option value="Artigo">Artigo</option>
+                        <option value="Tese">Tese</option>
+                        <option value="Jornal">Jornal</option>
+                        <option value="Relatório">Relatório</option>
+                        <option value="Apresentação">Apresentação</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="extension">Extensão:</label>
+                    <select id="extension" required>
+                        <option value="">Selecione uma extensão</option>
+                        <option value="pdf">PDF</option>
+                        <option value="epub">EPUB</option>
+                        <option value="docx">DOCX</option>
+                        <option value="xlsx">XLSX</option>
+                        <option value="pptx">PPTX</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="submitBtn">Adicionar Documento</button>
+                <button type="button" id="cancelBtn" class="btn-cancel hidden">Cancelar</button>
+            </form>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filter-section">
+            <div class="filter-group">
+                <label for="filterType">Filtrar por Tipo:</label>
+                <select id="filterType">
+                    <option value="">Todos os tipos</option>
+                    <option value="Livro">Livro</option>
+                    <option value="Revista">Revista</option>
+                    <option value="Manual">Manual</option>
+                    <option value="Artigo">Artigo</option>
+                    <option value="Tese">Tese</option>
+                    <option value="Jornal">Jornal</option>
+                    <option value="Relatório">Relatório</option>
+                    <option value="Apresentação">Apresentação</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterExtension">Filtrar por Extensão:</label>
+                <select id="filterExtension">
+                    <option value="">Todas as extensões</option>
+                    <option value="pdf">PDF</option>
+                    <option value="epub">EPUB</option>
+                    <option value="docx">DOCX</option>
+                    <option value="xlsx">XLSX</option>
+                    <option value="pptx">PPTX</option>
+                </select>
+            </div>
+
+            <div>
+                <button onclick="loadDocuments()">Filtrar</button>
+            </div>
+        </div>
+
+        <!-- Lista de documentos -->
+        <table id="documentsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Tipo</th>
+                    <th>Extensão</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="documentsBody">
+                <!-- Documentos serão carregados aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let isEditing = false;
+
+        // Carregar documentos ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDocuments();
+            loadCount();
+        });
+
+        // Event listeners
+        document.getElementById('documentForm').addEventListener('submit', handleSubmit);
+        document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
+        document.getElementById('filterType').addEventListener('change', loadDocuments);
+        document.getElementById('filterExtension').addEventListener('change', loadDocuments);
+
+        async function loadDocuments() {
+            try {
+                const filterType = document.getElementById('filterType').value;
+                const filterExtension = document.getElementById('filterExtension').value;
+                
+                let url = `${API_URL}/documents?`;
+                if (filterType) url += `type=${filterType}&`;
+                if (filterExtension) url += `extension=${filterExtension}&`;
+                
+                const response = await fetch(url);
+                const documents = await response.json();
+                
+                displayDocuments(documents);
+                loadCount();
+            } catch (error) {
+                console.error('Erro ao carregar documentos:', error);
+                alert('Erro ao carregar documentos. Verifique se o servidor está rodando.');
+            }
+        }
+
+        async function loadCount() {
+            try {
+                const response = await fetch(`${API_URL}/documents/count`);
+                const data = await response.json();
+                document.getElementById('totalDocs').textContent = data.total;
+            } catch (error) {
+                console.error('Erro ao carregar contagem:', error);
+            }
+        }
+
+        function displayDocuments(documents) {
+            const tbody = document.getElementById('documentsBody');
+            tbody.innerHTML = '';
+
+            documents.forEach(doc => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${doc.id}</td>
+                    <td>${doc.title}</td>
+                    <td>${doc.type}</td>
+                    <td>${doc.extension.toUpperCase()}</td>
+                    <td class="actions">
+                        <button class="btn-edit" onclick="editDocument(${doc.id})">Editar</button>
+                        <button class="btn-delete" onclick="deleteDocument(${doc.id})">Deletar</button>
+                    </td>
+                `;
+            });
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const type = document.getElementById('type').value;
+            const extension = document.getElementById('extension').value;
+            const editId = document.getElementById('editId').value;
+
+            const documentData = { title, type, extension };
+
+            try {
+                let response;
+                if (isEditing) {
+                    response = await fetch(`${API_URL}/documents/${editId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(documentData)
+                    });
+                } else {
+                    response = await fetch(`${API_URL}/documents`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(documentData)
+                    });
+                }
+
+                if (response.ok) {
+                    resetForm();
+                    loadDocuments();
+                    alert(isEditing ? 'Documento atualizado com sucesso!' : 'Documento adicionado com sucesso!');
+                } else {
+                    alert('Erro ao salvar documento.');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar documento.');
+            }
+        }
+
+        async function editDocument(id) {
+            try {
+                const response = await fetch(`${API_URL}/documents/${id}`);
+                const document = await response.json();
+
+                document.getElementById('title').value = document.title;
+                document.getElementById('type').value = document.type;
+                document.getElementById('extension').value = document.extension;
+                document.getElementById('editId').value = id;
+
+                isEditing = true;
+                document.getElementById('formTitle').textContent = 'Editar Documento';
+                document.getElementById('submitBtn').textContent = 'Atualizar Documento';
+                document.getElementById('cancelBtn').classList.remove('hidden');
+            } catch (error) {
+                console.error('Erro ao carregar documento:', error);
+                alert('Erro ao carregar documento para edição.');
+            }
+        }
+
+        async function deleteDocument(id) {
+            if (confirm('Tem certeza que deseja deletar este documento?')) {
+                try {
+                    const response = await fetch(`${API_URL}/documents/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        loadDocuments();
+                        alert('Documento deletado com sucesso!');
+                    } else {
+                        alert('Erro ao deletar documento.');
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao deletar documento.');
+                }
+            }
+        }
+
+        function cancelEdit() {
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('documentForm').reset();
+            document.getElementById('editId').value = '';
+            isEditing = false;
+            document.getElementById('formTitle').textContent = 'Adicionar Novo Documento';
+            document.getElementById('submitBtn').textContent = 'Adicionar Documento';
+            document.getElementById('cancelBtn').classList.add('hidden');
+        }
+    </script>
+</body>
+</html> 
