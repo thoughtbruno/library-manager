@@ -7,13 +7,16 @@ class DocumentBase(BaseModel):
     type: str
     extension: str
 
+
 class DocumentCreate(DocumentBase):
     pass
+
 
 class DocumentUpdate(BaseModel):
     title: Optional[str] = None
     type: Optional[str] = None
     extension: Optional[str] = None
+
 
 class DocumentResponse(DocumentBase):
     pass
