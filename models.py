@@ -19,7 +19,7 @@ class DocumentUpdate(BaseModel):
 
 
 class DocumentResponse(DocumentBase):
-    pass
+    id: int
 
     class Config:
         from_attributes = True 

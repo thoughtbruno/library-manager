@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from models import DocumentCreate, DocumentUpdate, DocumentResponse
-from mock_data import get_all_documents, filter_documents
+from document_manager import document_manager
 
 router = APIRouter()
 
@@ -14,42 +14,62 @@ async def get_documents(
     extension: Optional[str] = Query(None, description="Filtrar por extensão")
 ):
     """
-    Rota para listar todos os documentos com filtros opcionais
+    Lista todos os documentos com filtros opcionais e paginação
     """
-    return filter_documents(type_filter=type, extension_filter=extension, skip=skip, limit=limit)
+    return document_manager.list_documents(
+        type_filter=type, 
+        extension_filter=extension, 
+        skip=skip, 
+        limit=limit
+    )
 
 
 @router.get("/documents/{document_id}", response_model=DocumentResponse)
 async def get_document(document_id: int):
     """
-    Rota para buscar um documento por ID
+    Busca um documento por ID (índice)
     """
-    # TODO: Implementar busca por ID
-    raise HTTPException(status_code=501, detail="Busca por ID não implementada")
+    document = document_manager.get_document(document_id)
+    if not document:
+        raise HTTPException(status_code=404, detail="Documento não encontrado")
+    return document
 
 
 @router.post("/documents", response_model=DocumentResponse, status_code=201)
 async def create_document(document: DocumentCreate):
     """
-    Rota para criar um novo documento
+    Cria um novo documento
     """
-    # TODO: Implementar criação de documento
-    raise HTTPException(status_code=501, detail="Funcionalidade não implementada")
+    new_document = document_manager.create_document(document)
+    return new_document
 
 
 @router.put("/documents/{document_id}", response_model=DocumentResponse)
 async def update_document(document_id: int, document: DocumentUpdate):
     """
-    Rota para atualizar um documento existente
+    Atualiza um documento existente
     """
-    # TODO: Implementar atualização de documento
-    raise HTTPException(status_code=501, detail="Funcionalidade não implementada")
+    updated_document = document_manager.update_document(document_id, document)
+    if not updated_document:
+        raise HTTPException(status_code=404, detail="Documento não encontrado")
+    return updated_document
 
 
 @router.delete("/documents/{document_id}")
 async def delete_document(document_id: int):
     """
-    Rota para deletar um documento
+    Deleta um documento
     """
-    # TODO: Implementar exclusão de documento
-    raise HTTPException(status_code=501, detail="Funcionalidade não implementada") 
+    success = document_manager.delete_document(document_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Documento não encontrado")
+    return {"message": "Documento deletado com sucesso"}
+
+
+@router.get("/documents/count")
+async def count_documents():
+    """
+    Retorna o número total de documentos
+    """
+    count = document_manager.count_documents()
+    return {"total": count} 
