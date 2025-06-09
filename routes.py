@@ -24,6 +24,15 @@ async def get_documents(
     )
 
 
+@router.get("/documents/count")
+async def count_documents():
+    """
+    Retorna o número total de documentos
+    """
+    count = document_manager.count_documents()
+    return {"total": count}
+
+
 @router.get("/documents/{document_id}", response_model=DocumentResponse)
 async def get_document(document_id: int):
     """
@@ -63,13 +72,4 @@ async def delete_document(document_id: int):
     success = document_manager.delete_document(document_id)
     if not success:
         raise HTTPException(status_code=404, detail="Documento não encontrado")
-    return {"message": "Documento deletado com sucesso"}
-
-
-@router.get("/documents/count")
-async def count_documents():
-    """
-    Retorna o número total de documentos
-    """
-    count = document_manager.count_documents()
-    return {"total": count} 
+    return {"message": "Documento deletado com sucesso"} 

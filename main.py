@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import router
+from fastapi.responses import FileResponse
+import os
 
 app = FastAPI(
     title="Library Manager",
@@ -22,6 +24,13 @@ app.add_middleware(
 
 # Incluir as rotas
 app.include_router(router)
+
+
+@app.get("/", response_class=FileResponse, include_in_schema=False)
+async def serve_frontend():
+    """Serve o arquivo index.html"""
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    return FileResponse(os.path.join(base_dir, "index.html"))
 
 
 if __name__ == "__main__":

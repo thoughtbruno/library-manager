@@ -317,11 +317,20 @@
             const editId = document.getElementById('editId').value;
 
             const documentData = { title, type, extension };
+            
+            console.log('Submetendo formulário:');
+            console.log('- isEditing:', isEditing);
+            console.log('- editId:', editId);
+            console.log('- documentData:', documentData);
 
             try {
                 let response;
-                if (isEditing) {
-                    response = await fetch(`${API_URL}/documents/${editId}`, {
+                let url;
+                
+                if (isEditing && editId) {
+                    url = `${API_URL}/documents/${editId}`;
+                    console.log('PUT para:', url);
+                    response = await fetch(url, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -329,7 +338,9 @@
                         body: JSON.stringify(documentData)
                     });
                 } else {
-                    response = await fetch(`${API_URL}/documents`, {
+                    url = `${API_URL}/documents`;
+                    console.log('POST para:', url);
+                    response = await fetch(url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -338,36 +349,46 @@
                     });
                 }
 
+                console.log('Resposta status:', response.status);
+                
                 if (response.ok) {
+                    const result = await response.json();
+                    console.log('Resultado:', result);
                     resetForm();
                     loadDocuments();
                     alert(isEditing ? 'Documento atualizado com sucesso!' : 'Documento adicionado com sucesso!');
                 } else {
-                    alert('Erro ao salvar documento.');
+                    const errorText = await response.text();
+                    console.error('Erro na resposta:', errorText);
+                    alert('Erro ao salvar documento: ' + errorText);
                 }
             } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao salvar documento.');
+                console.error('Erro na requisição:', error);
+                alert('Erro ao salvar documento: ' + error.message);
             }
         }
 
         async function editDocument(id) {
             try {
+                console.log('Editando documento com ID:', id);
                 const response = await fetch(`${API_URL}/documents/${id}`);
-                const document = await response.json();
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                const docData = await response.json();
+                console.log('Documento carregado:', docData);
 
-                document.getElementById('title').value = document.title;
-                document.getElementById('type').value = document.type;
-                document.getElementById('extension').value = document.extension;
+                document.getElementById('title').value = docData.title;
+                document.getElementById('type').value = docData.type;
+                document.getElementById('extension').value = docData.extension;
                 document.getElementById('editId').value = id;
 
                 isEditing = true;
                 document.getElementById('formTitle').textContent = 'Editar Documento';
                 document.getElementById('submitBtn').textContent = 'Atualizar Documento';
                 document.getElementById('cancelBtn').classList.remove('hidden');
+                console.log('Modo de edição ativado');
             } catch (error) {
                 console.error('Erro ao carregar documento:', error);
-                alert('Erro ao carregar documento para edição.');
+                alert('Erro ao carregar documento para edição: ' + error.message);
             }
         }
 
