@@ -383,5 +383,3 @@ O sistema está **pronto para deploy** com as seguintes considerações:
 **Status Final: ✅ SISTEMA APROVADO**
 
 ---
-
-*Relatório gerado automaticamente em 09/06/2025* 
